@@ -5,10 +5,10 @@ import {UserModule} from "./User/user.module";
 import { MongooseModule } from '@nestjs/mongoose';
 import {APP_FILTER} from "@nestjs/core";
 import {HttpErrorFilter} from "./filter/http-error.filter";
-import {ConfigModule} from "@nestjs/config";
+import {dbConfig} from "./config/config";
 
 @Module({
-  imports: [ConfigModule.forRoot({envFilePath:'./src/.env'}),MongooseModule.forRoot("mongodb+srv://siron:abcde12345@cluster0.dw0ms.mongodb.net/nest?retryWrites=true&w=majority"),UserModule],
+  imports: [MongooseModule.forRoot(dbConfig),UserModule],
   controllers: [AppController],
   providers: [
       AppService,

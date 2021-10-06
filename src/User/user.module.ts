@@ -7,9 +7,7 @@ import {UsersRepository} from "./user.repository";
 import {JwtModule} from "@nestjs/jwt";
 import {JwtStrategy} from "./strategies/jwt.strategy";
 import {JwtAuthGuard} from "./strategies/jwt-auth.guard";
-import {jwtConfig} from "../config/jwt.config";
-
-console.log(jwtConfig)
+import {jwtConfig} from "../config/config";
 
 @Module({
     imports: [MongooseModule.forFeature([{name:User.name,schema:UserSchema}]),
