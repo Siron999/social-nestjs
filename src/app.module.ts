@@ -8,7 +8,7 @@ import {HttpErrorFilter} from "./filter/http-error.filter";
 import {dbConfig} from "./config/config";
 
 @Module({
-  imports: [MongooseModule.forRoot(dbConfig),UserModule],
+  imports: [MongooseModule.forRoot("mongodb+srv://siron:abcde12345@cluster0.dw0ms.mongodb.net/nest?retryWrites=true&w=majority"),UserModule],
   controllers: [AppController],
   providers: [
       AppService,

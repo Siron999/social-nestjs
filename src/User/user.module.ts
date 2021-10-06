@@ -11,7 +11,10 @@ import {jwtConfig} from "../config/config";
 
 @Module({
     imports: [MongooseModule.forFeature([{name:User.name,schema:UserSchema}]),
-    JwtModule.register(jwtConfig)
+    JwtModule.register({
+        secret: 'a12323a32423sdfsdfsdfjujsdu7sd',
+        signOptions: { expiresIn: '100s' },
+    })
     ],
     controllers: [UsersController],
     providers: [UsersService,UsersRepository,JwtStrategy,JwtAuthGuard],
