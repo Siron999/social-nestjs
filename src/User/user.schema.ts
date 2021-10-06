@@ -1,26 +1,34 @@
 import {Schema,Prop,SchemaFactory} from "@nestjs/mongoose";
 import {Document} from 'mongoose';
+import {Schema as schema} from 'mongoose';
 
 export type UserDocument = User & Document;
 
 @Schema()
 export class User{
-    @Prop({required:true})
+
+    @Prop({type:schema.Types.ObjectId,required:false})
+    _id?:schema.Types.ObjectId;
+
+    @Prop({type:String,required:true})
     username:string;
 
-    @Prop({required:true})
+    @Prop({type:String,required:true})
+    fullName:string;
+
+    @Prop({type:String,required:true})
     email:string;
 
-    @Prop({required:true})
+    @Prop({type:String,required:true})
     password:string;
 
-    @Prop({required:true})
-    mobileNo:string;
+    @Prop({type:Number,required:true})
+    mobileNo:number;
 
-    @Prop({default:"",required:false})
+    @Prop({type:String,default:"",required:false})
     profileImg?:string;
 
-    @Prop({default:"",required:false})
+    @Prop({type:String,default:"",required:false})
     address?:string;
 
     @Prop({type:[{}],required:true})

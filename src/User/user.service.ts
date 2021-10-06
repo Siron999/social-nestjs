@@ -1,30 +1,77 @@
-import { Injectable } from "@nestjs/common";
+import {BadRequestException, Injectable, UnauthorizedException} from "@nestjs/common";
 import { User } from "./user.schema";
 import { UsersRepository } from "./user.repository";
+import {JwtService} from "@nestjs/jwt";
+import {CurrentUserDto} from "./dtos/user.dto";
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly usersRepository: UsersRepository) {}
+    constructor(private readonly usersRepository: UsersRepository,private readonly jwtService:JwtService) {}
 
-    async getUserById(userId: string): Promise<User> {
-        return this.usersRepository.findById(userId)
+    async getCurrentUser(email:string): Promise<CurrentUserDto> {
+        const user = await this.usersRepository.findOne({email});
+        if(!user) throw new UnauthorizedException('Invalid Credentials');
+        if (user) {
+            return {
+                username: user.username,
+                fullName: user.fullName,
+                email: user.email,
+                mobileNo: user.mobileNo,
+                education: user.education,
+                hobbies: user.hobbies,
+                posts: user.posts,
+                logs: user.logs,
+                address: user.address,
+                profileImg: user.profileImg,
+            };
+        }
+        return null;
     }
 
     async getUsers(): Promise<User[]> {
         return this.usersRepository.find({});
     }
 
-    async createUser(username: string, password: string, email: string,mobileNo: string): Promise<User> {
+    async createUser(username: string,fullName: string, password: string, email: string,mobileNo: number): Promise<User> {
         return this.usersRepository.create({
             username,
+            fullName,
             email,
             mobileNo,
             password,
         })
     }
 
-    async accountExists(email: string,username: string): Promise<Boolean> {
-        return this.usersRepository.accountExists({$or:[{email},{username}]});
+    async accountExists(email: string,username: string): Promise<void> {
+        const user= await this.usersRepository.accountExists({$or:[{email},{username}]});
+        if(user) throw new BadRequestException('Account already exists');
+    }
+
+    async validateUser(email: string, pass: string): Promise<CurrentUserDto & {access_token:string}> {
+        const user = await this.usersRepository.findOne({email});
+        if(!user) throw new UnauthorizedException('Invalid Credentials');
+        if (user && user.password === pass) {
+            return await this.login(user);
+        }else {
+            throw new UnauthorizedException('Invalid Credentials');
+        }
+    }
+
+    async login(user: User): Promise<CurrentUserDto & {access_token:string}> {
+        const payload = { email: user.email,sub:user._id };
+        return {
+            username: user.username,
+            fullName: user.fullName,
+            email: user.email,
+            mobileNo: user.mobileNo,
+            education: user.education,
+            hobbies: user.hobbies,
+            posts: user.posts,
+            logs: user.logs,
+            address: user.address,
+            profileImg: user.profileImg,
+            access_token: this.jwtService.sign(payload),
+        };
     }
 
 }
