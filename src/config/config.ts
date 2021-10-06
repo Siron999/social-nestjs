@@ -1,3 +1,4 @@
+const  dotenv= require('dotenv').config({path:"./.env"});
 
 export const jwtConfig = {
     secretOrPrivateKey: process.env.TOKEN,
