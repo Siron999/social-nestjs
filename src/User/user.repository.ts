@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import {FilterQuery, Model} from "mongoose";
+import {FilterQuery, Model, Schema,mongo} from "mongoose";
 import { User, UserDocument } from "./user.schema";
 
 @Injectable()
@@ -11,18 +11,21 @@ export class UsersRepository {
         return this.userModel.findById(userFilterQuery);
     }
 
+    async findOne(userFilterQuery:FilterQuery<UserDocument>): Promise<User> {
+        return this.userModel.findOne(userFilterQuery);
+    }
+
     async find(usersFilterQuery:FilterQuery<UserDocument>): Promise<User[]> {
         return this.userModel.find(usersFilterQuery)
     }
 
     async create(user: User): Promise<User> {
-        const newUser = new this.userModel(user);
+        const newUser = new this.userModel({_id: new mongo.ObjectId(),...user});
         return newUser.save()
     }
 
     async accountExists(usersFilterQuery:FilterQuery<UserDocument>): Promise<Boolean> {
         const exists = await this.userModel.findOne(usersFilterQuery);
-        console.log(exists)
         return !!exists;
     }
 
