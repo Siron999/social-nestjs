@@ -5,8 +5,8 @@ import {MongooseModule} from "@nestjs/mongoose";
 import {User, UserSchema} from "./user.schema";
 import {UsersRepository} from "./user.repository";
 import {JwtModule} from "@nestjs/jwt";
-import {JwtStrategy} from "./strategies/jwt.strategy";
-import {JwtAuthGuard} from "./strategies/jwt-auth.guard";
+import {JwtStrategy} from "./jwt/jwt.strategy";
+import {JwtAuthGuard} from "./jwt/jwt-auth.guard";
 import {jwtConfig} from "../config/config";
 import {RolesGuard} from "./roles/roles.guard";
 
@@ -20,7 +20,6 @@ import {RolesGuard} from "./roles/roles.guard";
         }),
     ],
     controllers: [UsersController],
-    providers: [UsersService,UsersRepository,JwtStrategy,JwtAuthGuard,RolesGuard],
-    exports: [UsersService]
+    providers: [UsersService,UsersRepository]
 })
 export class UserModule {}

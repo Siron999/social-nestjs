@@ -2,7 +2,7 @@ import {Body, Controller, Get, Param, Post, Request, UseGuards} from '@nestjs/co
 import {User} from './user.schema';
 import {UsersService} from './user.service';
 import {CreateUserDto, CurrentUserDto, LoginUserDto} from "./dtos/user.dto";
-import {JwtAuthGuard} from './strategies/jwt-auth.guard';
+import {JwtAuthGuard} from './jwt/jwt-auth.guard';
 import {Roles} from "./roles/roles.decorator";
 import {Role} from "./roles/roles.enum";
 import {RolesGuard} from "./roles/roles.guard";
@@ -13,7 +13,7 @@ export class UsersController {
     }
 
 
-    @Roles(Role.User)
+    @Roles(Role.User,Role.Admin)
     @UseGuards(JwtAuthGuard,RolesGuard)
     @Get('current-user-info')
     async getUser(@Param('userId') userId: string,@Request()req:any): Promise<CurrentUserDto> {

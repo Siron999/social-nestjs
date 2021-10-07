@@ -19,6 +19,7 @@ export class UsersService {
                 fullName: user.fullName,
                 email: user.email,
                 mobileNo: user.mobileNo,
+                role:user.role,
                 education: user.education,
                 hobbies: user.hobbies,
                 posts: user.posts,
@@ -59,7 +60,6 @@ export class UsersService {
         if(!user) throw new UnauthorizedException('Invalid Credentials');
 
         const passwordExist = await bcrypt.compare(pass,user.password);
-        console.log(passwordExist)
 
         if (user && passwordExist) {
             return await this.login(user);
