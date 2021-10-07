@@ -1,21 +1,27 @@
-import {Body, Controller, Get, Param, Patch, Post, HttpException, HttpStatus, UseGuards,Request} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Request, UseGuards} from '@nestjs/common';
 import {User} from './user.schema';
 import {UsersService} from './user.service';
 import {CreateUserDto, CurrentUserDto, LoginUserDto} from "./dtos/user.dto";
-import { JwtAuthGuard } from './strategies/jwt-auth.guard';
+import {JwtAuthGuard} from './strategies/jwt-auth.guard';
+import {Roles} from "./roles/roles.decorator";
+import {Role} from "./roles/roles.enum";
+import {RolesGuard} from "./roles/roles.guard";
 
 @Controller('api/users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {
     }
 
-    @UseGuards(JwtAuthGuard)
+
+    @Roles(Role.User)
+    @UseGuards(JwtAuthGuard,RolesGuard)
     @Get('current-user-info')
     async getUser(@Param('userId') userId: string,@Request()req:any): Promise<CurrentUserDto> {
         return this.usersService.getCurrentUser(req.user.email)
     }
 
-    @UseGuards(JwtAuthGuard)
+    @Roles(Role.Admin)
+    @UseGuards(JwtAuthGuard,RolesGuard)
     @Get('all-users')
     async getUsers(): Promise<User[]> {
         return this.usersService.getUsers();
@@ -24,8 +30,8 @@ export class UsersController {
     @Post('register')
     async register(@Body() createUserDto: CreateUserDto): Promise<CurrentUserDto> {
             await this.usersService.accountExists(createUserDto.email,createUserDto.username);
-            const user = await this.usersService.createUser(createUserDto.username,createUserDto.fullName, createUserDto.password,createUserDto.email,createUserDto.mobileNo)
-            return this.login(user);
+            const user = await this.usersService.createUser(createUserDto.username,createUserDto.fullName,createUserDto.role, createUserDto.password,createUserDto.email,createUserDto.mobileNo)
+            return this.usersService.login(user);
     }
 
     @Post('login')

@@ -6,6 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {APP_FILTER} from "@nestjs/core";
 import {HttpErrorFilter} from "./filter/http-error.filter";
 import {dbConfig} from "./config/config";
+import {JwtAuthGuard} from "./User/strategies/jwt-auth.guard";
+import {JwtStrategy} from "./User/strategies/jwt.strategy";
 
 @Module({
   imports: [MongooseModule.forRoot(dbConfig),UserModule],

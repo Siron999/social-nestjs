@@ -7,6 +7,7 @@ import {
 } from 'class-validator';
 import {IsStringOrNumber, MobileLength} from "../../validator/custom.validator";
 import {Prop} from "@nestjs/mongoose";
+import {Role} from "../roles/roles.enum";
 
 export class CreateUserDto {
 
@@ -23,6 +24,8 @@ export class CreateUserDto {
     @IsNotEmpty()
     @IsEmail()
     email: string;
+
+    role?: Role;
 
     @IsNotEmpty()
     @Validate(IsStringOrNumber)
@@ -57,6 +60,8 @@ export class CurrentUserDto {
 
     @IsNotEmpty()
     email:string;
+
+    role?: Role;
 
     @IsNotEmpty()
     mobileNo:number;

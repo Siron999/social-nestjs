@@ -3,6 +3,8 @@ import { User } from "./user.schema";
 import { UsersRepository } from "./user.repository";
 import {JwtService} from "@nestjs/jwt";
 import {CurrentUserDto} from "./dtos/user.dto";
+import {Role} from "./roles/roles.enum";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -32,13 +34,18 @@ export class UsersService {
         return this.usersRepository.find({});
     }
 
-    async createUser(username: string,fullName: string, password: string, email: string,mobileNo: number): Promise<User> {
+    async createUser(username: string,fullName: string,role: Role, password: string, email: string,mobileNo: number): Promise<User> {
+        //hashpassword
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password,salt);
+
         return this.usersRepository.create({
             username,
             fullName,
+            role,
             email,
             mobileNo,
-            password,
+            password:hashedPassword,
         })
     }
 
@@ -50,7 +57,11 @@ export class UsersService {
     async validateUser(email: string, pass: string): Promise<CurrentUserDto & {access_token:string}> {
         const user = await this.usersRepository.findOne({email});
         if(!user) throw new UnauthorizedException('Invalid Credentials');
-        if (user && user.password === pass) {
+
+        const passwordExist = await bcrypt.compare(pass,user.password);
+        console.log(passwordExist)
+
+        if (user && passwordExist) {
             return await this.login(user);
         }else {
             throw new UnauthorizedException('Invalid Credentials');
@@ -58,11 +69,12 @@ export class UsersService {
     }
 
     async login(user: User): Promise<CurrentUserDto & {access_token:string}> {
-        const payload = { email: user.email,sub:user._id };
+        const payload = { email: user.email,sub:user._id,roles:user.role };
         return {
             username: user.username,
             fullName: user.fullName,
             email: user.email,
+            role:user.role,
             mobileNo: user.mobileNo,
             education: user.education,
             hobbies: user.hobbies,

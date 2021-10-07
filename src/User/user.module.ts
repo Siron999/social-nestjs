@@ -8,13 +8,19 @@ import {JwtModule} from "@nestjs/jwt";
 import {JwtStrategy} from "./strategies/jwt.strategy";
 import {JwtAuthGuard} from "./strategies/jwt-auth.guard";
 import {jwtConfig} from "../config/config";
+import {RolesGuard} from "./roles/roles.guard";
 
 @Module({
     imports: [MongooseModule.forFeature([{name:User.name,schema:UserSchema}]),
-    JwtModule.register(jwtConfig)
+        JwtModule.registerAsync({
+            useFactory: () => ({
+                secret: process.env.TOKEN,
+                signOptions: { expiresIn: '3600s' },
+            }),
+        }),
     ],
     controllers: [UsersController],
-    providers: [UsersService,UsersRepository,JwtStrategy,JwtAuthGuard],
+    providers: [UsersService,UsersRepository,JwtStrategy,JwtAuthGuard,RolesGuard],
     exports: [UsersService]
 })
 export class UserModule {}
