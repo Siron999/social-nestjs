@@ -69,7 +69,7 @@ export class UsersService {
     }
 
     async login(user: User): Promise<CurrentUserDto & {access_token:string}> {
-        const payload = { email: user.email,sub:user._id,roles:user.role };
+        const payload = { email: user.email,sub:user._id,role:user.role };
         return {
             username: user.username,
             fullName: user.fullName,
