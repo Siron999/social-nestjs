@@ -19,7 +19,7 @@ export class UsersRepository {
     }
 
     async findOne(userFilterQuery: FilterQuery<UserDocument>): Promise<User> {
-        return this.userModel.findOne(userFilterQuery).populate('posts').populate('followers','username email profileImg');
+        return this.userModel.findOne(userFilterQuery).populate('posts').populate('followers','username profileImg');
     }
 
     async find(usersFilterQuery: FilterQuery<UserDocument>): Promise<User[]> {
