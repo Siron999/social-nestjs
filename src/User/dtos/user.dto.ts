@@ -86,4 +86,10 @@ export class CurrentUserDto {
 
     @IsNotEmpty()
     access_token?:string;
+
+    @IsNotEmpty()
+    following?:Array<object>;
+
+    @IsNotEmpty()
+    followers?:Array<object>;
 }

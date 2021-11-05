@@ -20,6 +20,12 @@ import {RolesGuard} from "./roles/roles.guard";
         }),
     ],
     controllers: [UsersController],
-    providers: [UsersService,UsersRepository]
+    providers: [UsersService,UsersRepository],
+    exports:[MongooseModule.forFeature([{name:User.name,schema:UserSchema}]), JwtModule.registerAsync({
+        useFactory: () => ({
+            secret: process.env.TOKEN,
+            signOptions: { expiresIn: '3600s' },
+        }),
+    }),UsersRepository]
 })
 export class UserModule {}
