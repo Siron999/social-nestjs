@@ -162,6 +162,8 @@ export class UsersService {
                     _id: "$posts._id",
                     caption: "$posts.caption",
                     postImg: "$posts.postImg",
+                    likes: "$posts.likes",
+                    comment: "$posts.comments",
                     username: "$username"
                 }
             },
