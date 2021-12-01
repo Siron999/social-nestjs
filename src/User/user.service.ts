@@ -7,6 +7,7 @@ import {Role} from "./roles/roles.enum";
 import * as bcrypt from 'bcrypt';
 import {Schema} from "mongoose";
 import {Post} from "../Post/post.schema";
+import {FeedDto} from "../Post/dtos/post.dto";
 
 @Injectable()
 export class UsersService {
@@ -17,7 +18,9 @@ export class UsersService {
         const user = await this.usersRepository.findOne({email});
         if (!user) throw new UnauthorizedException('Invalid Credentials');
         if (user) {
+            let temp = user.posts as Array<any>;
             return {
+                _id: user._id,
                 username: user.username,
                 fullName: user.fullName,
                 email: user.email,
@@ -25,7 +28,7 @@ export class UsersService {
                 role: user.role,
                 education: user.education,
                 hobbies: user.hobbies,
-                posts: user.posts,
+                posts: temp.map((x) => ({...x.toJSON(), liked: (x.likes.includes(user.username))})),
                 logs: user.logs,
                 address: user.address,
                 profileImg: user.profileImg,
@@ -36,8 +39,34 @@ export class UsersService {
         return null;
     }
 
-    async getUsers(): Promise<User[]> {
-        return this.usersRepository.find({});
+    async getUser(userId: Schema.Types.ObjectId, username: string): Promise<CurrentUserDto> {
+        const user = await this.usersRepository.findByIdUser(userId);
+        console.log(user);
+        if (!user) throw new UnauthorizedException('User Not Found');
+        if (user) {
+            let temp = user.posts as Array<any>;
+            return {
+                _id: user._id,
+                username: user.username,
+                fullName: user.fullName,
+                email: user.email,
+                mobileNo: user.mobileNo,
+                role: user.role,
+                education: user.education,
+                hobbies: user.hobbies,
+                posts: temp.map((x) => ({...x.toJSON(), liked: (x.likes.includes(username))})),
+                logs: user.logs,
+                address: user.address,
+                profileImg: user.profileImg,
+                following: user.following,
+                followers: user.followers,
+            };
+        }
+        return null;
+    }
+
+    async getUsers(username: string): Promise<User[]> {
+        return this.usersRepository.findAll({username: {$ne: username}});
     }
 
     async createUser(username: string, fullName: string, role: Role, password: string, email: string, mobileNo: number): Promise<User> {
@@ -80,7 +109,9 @@ export class UsersService {
 
     async login(user: User): Promise<CurrentUserDto & { access_token: string }> {
         const payload = {email: user.email, sub: user._id, role: user.role, username: user.username};
+        let temp = user.posts as Array<any>;
         return {
+            _id: user._id,
             username: user.username,
             fullName: user.fullName,
             email: user.email,
@@ -88,7 +119,7 @@ export class UsersService {
             mobileNo: user.mobileNo,
             education: user.education,
             hobbies: user.hobbies,
-            posts: user.posts,
+            posts: temp.map((x) => ({...x.toJSON(), liked: (x.likes.includes(user.username))})),
             logs: user.logs,
             address: user.address,
             profileImg: user.profileImg,
@@ -136,37 +167,57 @@ export class UsersService {
         return "Unfollowed"
     }
 
-    async feed(id: Schema.Types.ObjectId): Promise<Array<Post>> {
-        const {following} = await this.usersRepository.findById(id, 'following');
-        let query = following.map((x) => {
-            return {_id: x}
-        });
+    async feed(id: Schema.Types.ObjectId, username: string): Promise<Array<FeedDto>> {
+        const following = await this.usersRepository.findByIdFeed(id);
 
-        return this.usersRepository.aggregate([
-            {
-                $match: {
-                    $or: query
-                }
+        let temp = following.map(x => x);
+
+        if (temp.length === 0) {
+            return [];
+        } else {
+            const feed = await this.usersRepository.aggregate([
+                {
+                    $match: {
+                        $or: temp
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "posts",
+                        localField: "posts",
+                        foreignField: "_id",
+                        as: "posts"
+                    }
+                },
+                {$unwind: "$posts"},
+                {
+                    $project: {
+                        _id: "$posts._id",
+                        caption: "$posts.caption",
+                        postImg: "$posts.postImg",
+                        likes: "$posts.likes",
+                        comments: "$posts.comments",
+                        username: "$username",
+                        profileImg: '$profileImg',
+                        userId: '$_id',
+                    }
+                },
+            ]);
+
+            return feed.map((x) => ({
+                ...x,
+                liked: (x.likes.includes(username)),
+                comments: x.comments.map(y => ({...y, profileImg: x.profileImg}))
+            }))
+        }
+    }
+
+    async changeProfile(id: Schema.Types.ObjectId, img: string): Promise<String> {
+        await this.usersRepository.findByIdAndUpdate(id, {
+            $set: {
+                profileImg: img
             },
-            {
-                $lookup: {
-                    from: "posts",
-                    localField: "posts",
-                    foreignField: "_id",
-                    as: "posts"
-                }
-            },
-            {$unwind: "$posts"},
-            {
-                $project: {
-                    _id: "$posts._id",
-                    caption: "$posts.caption",
-                    postImg: "$posts.postImg",
-                    likes: "$posts.likes",
-                    comment: "$posts.comments",
-                    username: "$username"
-                }
-            },
-        ])
+        });
+        return "Profile Pic Successfully changed";
     }
 }

@@ -3,7 +3,6 @@ import {InjectModel} from "@nestjs/mongoose";
 import {FilterQuery, Model, Schema, Types, UpdateQuery} from "mongoose";
 import {Post, PostDocument} from "./post.schema";
 import {User, UserDocument} from "../User/user.schema";
-import {CurrentUserDto} from "../User/dtos/user.dto";
 import {Comment, CommentDocument} from "./comment.schema";
 
 @Injectable()
@@ -17,8 +16,7 @@ export class PostRepository {
     }
 
     async createComment(post: any): Promise<Comment> {
-        const newPost = new this.commentModel({_id: new Types.ObjectId(), ...post});
-        return newPost.save()
+        return  new this.commentModel({_id: new Types.ObjectId(), ...post});
     }
 
     async findByIdAndUpdate(id: Schema.Types.ObjectId, updateQuery: UpdateQuery<CommentDocument>): Promise<Post> {

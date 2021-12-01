@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, Post, Request, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Request, UseGuards, Put} from '@nestjs/common';
 import {User} from './user.schema';
 import {UsersService} from './user.service';
 import {CreateUserDto, CurrentUserDto, LoginUserDto} from "./dtos/user.dto";
@@ -8,6 +8,8 @@ import {Role} from "./roles/roles.enum";
 import {RolesGuard} from "./roles/roles.guard";
 import {Post as PostSchema} from "../Post/post.schema";
 import {Post as PostRoute} from "@nestjs/common/decorators/http/request-mapping.decorator";
+import {FeedDto} from "../Post/dtos/post.dto";
+import {Schema} from "mongoose";
 
 @Controller('api/users')
 export class UsersController {
@@ -18,15 +20,22 @@ export class UsersController {
     @Roles(Role.User, Role.Admin)
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Get('current-user-info')
-    async getUser(@Param('userId') userId: string, @Request() req: any): Promise<CurrentUserDto> {
+    async getCurrentUser(@Param('userId') userId: string, @Request() req: any): Promise<CurrentUserDto> {
         return this.usersService.getCurrentUser(req.user.email)
     }
 
-    @Roles(Role.Admin)
+    @Roles(Role.User, Role.Admin)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Get('user-info/:userId')
+    async getUser(@Param('userId') userId: Schema.Types.ObjectId, @Request() req: any): Promise<CurrentUserDto> {
+        return this.usersService.getUser(userId, req.user.username);
+    }
+
+    @Roles(Role.User)
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Get('all-users')
-    async getUsers(): Promise<User[]> {
-        return this.usersService.getUsers();
+    async getUsers(@Request() req: any): Promise<User[]> {
+        return this.usersService.getUsers(req.user.username);
     }
 
     @Post('register')
@@ -57,8 +66,15 @@ export class UsersController {
     @Roles(Role.User)
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Get('feed')
-    async feed(@Request() req: any): Promise<Array<PostSchema>> {
-        return this.usersService.feed(req.user.sub);
+    async feed(@Request() req: any): Promise<Array<FeedDto>> {
+        return this.usersService.feed(req.user.sub, req.user.username);
+    }
+
+    @Roles(Role.User)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Put('change-profile-pic')
+    async changeProfile(@Request() req: any): Promise<String> {
+        return this.usersService.changeProfile(req.user.sub, req.body.profileImg);
     }
 
 }

@@ -31,7 +31,7 @@ export class PostService {
     async createComment(comment: string, username: string): Promise<Comment> {
         return this.postRepository.createComment({
             comment,
-            user: username
+            username: username
         })
     }
 

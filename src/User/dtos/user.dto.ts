@@ -8,6 +8,7 @@ import {
 import {IsStringOrNumber, MobileLength} from "../../validator/custom.validator";
 import {Prop} from "@nestjs/mongoose";
 import {Role} from "../roles/roles.enum";
+import {Schema as schema} from "mongoose";
 
 export class CreateUserDto {
 
@@ -52,44 +53,46 @@ export class LoginUserDto {
 
 export class CurrentUserDto {
 
-    @IsNotEmpty()
-    username:string;
+    _id?: schema.Types.ObjectId;
 
     @IsNotEmpty()
-    fullName:string;
+    username: string;
 
     @IsNotEmpty()
-    email:string;
+    fullName: string;
+
+    @IsNotEmpty()
+    email: string;
 
     role?: Role;
 
     @IsNotEmpty()
-    mobileNo:number;
+    mobileNo: number;
 
     @IsNotEmpty()
-    profileImg?:string;
+    profileImg?: string;
 
     @IsNotEmpty()
-    address?:string;
+    address?: string;
 
     @IsNotEmpty()
-    education?:Array<object>;
+    education?: Array<object>;
 
     @IsNotEmpty()
-    hobbies?:Array<string>;
+    hobbies?: Array<string>;
 
     @IsNotEmpty()
-    posts?:Array<object>;
+    posts?: Array<any>;
 
     @IsNotEmpty()
-    logs?:Array<object>;
+    logs?: Array<object>;
 
     @IsNotEmpty()
-    access_token?:string;
+    access_token?: string;
 
     @IsNotEmpty()
-    following?:Array<object>;
+    following?: Array<object>;
 
     @IsNotEmpty()
-    followers?:Array<object>;
+    followers?: Array<object>;
 }

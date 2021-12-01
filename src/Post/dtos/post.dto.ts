@@ -2,7 +2,9 @@ import {
     IsNotEmpty,
     IsString,
 } from 'class-validator';
-import {Schema} from "mongoose";
+import {Schema as schema, Schema} from "mongoose";
+import {Prop} from "@nestjs/mongoose";
+import {Comment} from "../comment.schema";
 
 export class CreatePostDto {
 
@@ -24,5 +26,30 @@ export class CreateCommentDto {
 
     @IsNotEmpty()
     postId: Schema.Types.ObjectId;
+
+}
+
+export class FeedDto {
+
+    @IsNotEmpty()
+    _id?: schema.Types.ObjectId;
+
+    @IsNotEmpty()
+    postImg: string;
+
+    @IsNotEmpty()
+    caption: string;
+
+    @IsNotEmpty()
+    likes?: Array<String>;
+
+    @IsNotEmpty()
+    comments?: Array<Comment>;
+
+    @IsNotEmpty()
+    username?: string;
+
+    @IsNotEmpty()
+    profileImg?: string;
 
 }

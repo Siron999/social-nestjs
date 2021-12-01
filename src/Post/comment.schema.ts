@@ -15,7 +15,10 @@ export class Comment {
     comment: string;
 
     @Prop({required: true,ref:'User'})
-    user: string;
+    username: string;
+
+    @Prop({required: true,ref:'User'})
+    profileImg: string;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);
