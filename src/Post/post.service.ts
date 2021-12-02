@@ -29,9 +29,11 @@ export class PostService {
     }
 
     async createComment(comment: string, username: string): Promise<Comment> {
+        const profile = await this.userRepository.findOneProfile({username});
         return this.postRepository.createComment({
             comment,
-            username: username
+            username: username,
+            profileImg: profile.profileImg
         })
     }
 

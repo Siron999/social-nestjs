@@ -41,7 +41,6 @@ export class UsersService {
 
     async getUser(userId: Schema.Types.ObjectId, username: string): Promise<CurrentUserDto> {
         const user = await this.usersRepository.findByIdUser(userId);
-        console.log(user);
         if (!user) throw new UnauthorizedException('User Not Found');
         if (user) {
             let temp = user.posts as Array<any>;
@@ -207,7 +206,6 @@ export class UsersService {
             return feed.map((x) => ({
                 ...x,
                 liked: (x.likes.includes(username)),
-                comments: x.comments.map(y => ({...y, profileImg: x.profileImg}))
             }))
         }
     }

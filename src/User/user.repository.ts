@@ -33,12 +33,16 @@ export class UsersRepository {
         return this.userModel.findOne(userFilterQuery).populate('posts').populate('followers', 'username profileImg').populate('following', 'username profileImg');
     }
 
+    async findOneProfile(userFilterQuery: FilterQuery<UserDocument>): Promise<User> {
+        return this.userModel.findOne(userFilterQuery,'profileImg');
+    }
+
     async find(usersFilterQuery: FilterQuery<UserDocument>): Promise<User[]> {
         return this.userModel.find(usersFilterQuery)
     }
 
     async findAll(usersFilterQuery: FilterQuery<UserDocument>): Promise<User[]> {
-        return this.userModel.find(usersFilterQuery, 'profileImg username')
+        return this.userModel.find(usersFilterQuery, 'profileImg username posts').populate('posts')
     }
 
     async create(user: User): Promise<User> {
